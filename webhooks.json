@@ -1,0 +1,177 @@
+{
+  "$schema": "one HMAC-signed webhook payload per case; verify(secret, headers, body) must return `expect` when called with the top-level `secret` (YOUR account's registered secret), except `category: rotation` cases, which need a verifier that tries several secrets at once (`other_valid_secret`). `signed_with` is informational only (which secret actually produced the signature): never what you verify with, that is always your own `secret` (a `wrong_secret` case is deliberately signed with a DIFFERENT one). IMPORTANT: every case was signed as if the wall clock read `reference_now` (webhook signatures expire after a few minutes by design, to prevent replay): mock your clock to `reference_now` while checking these vectors, never your real current time.",
+  "reference_now": "2026-09-27T14:03:21+00:00",
+  "tolerance_seconds": 300,
+  "secret": "whsec_6zF2QIQo9lhSA/1704ovlSzwkqgIaEaTqW5ML16ZGfk=",
+  "cases": [
+    {
+      "name": "valid",
+      "category": "signature",
+      "signed_with": "whsec_6zF2QIQo9lhSA/1704ovlSzwkqgIaEaTqW5ML16ZGfk=",
+      "headers": {
+        "content-type": "application/json",
+        "user-agent": "Duva-Webhooks/1",
+        "webhook-id": "evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d",
+        "webhook-timestamp": "1790517801",
+        "webhook-signature": "v1,HwBNkO4X2rqReiR9LAeiAmZLnGS944FKK4Kqu5cBocE="
+      },
+      "body": "{\"data\":{\"recipient\":\"é@example.org\"},\"domain\":\"example.com\",\"id\":\"evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d\",\"type\":\"bounced\"}",
+      "expect": true
+    },
+    {
+      "name": "tampered_body",
+      "category": "signature",
+      "signed_with": "whsec_6zF2QIQo9lhSA/1704ovlSzwkqgIaEaTqW5ML16ZGfk=",
+      "headers": {
+        "content-type": "application/json",
+        "user-agent": "Duva-Webhooks/1",
+        "webhook-id": "evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d",
+        "webhook-timestamp": "1790517801",
+        "webhook-signature": "v1,HwBNkO4X2rqReiR9LAeiAmZLnGS944FKK4Kqu5cBocE="
+      },
+      "body": "{\"data\":{\"recipient\":\"é@example.org\"},\"domain\":\"example.com\",\"id\":\"evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d\",\"type\":\"delivered\"}",
+      "expect": false
+    },
+    {
+      "name": "too_old",
+      "category": "signature",
+      "signed_with": "whsec_6zF2QIQo9lhSA/1704ovlSzwkqgIaEaTqW5ML16ZGfk=",
+      "headers": {
+        "content-type": "application/json",
+        "user-agent": "Duva-Webhooks/1",
+        "webhook-id": "evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d",
+        "webhook-timestamp": "1790517201",
+        "webhook-signature": "v1,RBkGt1sXdHCL99cOOjddvhUxTzG42f9dQv9YlnO4Ghs="
+      },
+      "body": "{\"data\":{\"recipient\":\"é@example.org\"},\"domain\":\"example.com\",\"id\":\"evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d\",\"type\":\"bounced\"}",
+      "expect": false
+    },
+    {
+      "name": "in_the_future",
+      "category": "signature",
+      "signed_with": "whsec_6zF2QIQo9lhSA/1704ovlSzwkqgIaEaTqW5ML16ZGfk=",
+      "headers": {
+        "content-type": "application/json",
+        "user-agent": "Duva-Webhooks/1",
+        "webhook-id": "evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d",
+        "webhook-timestamp": "1790518401",
+        "webhook-signature": "v1,JV7++tzQiJCk+i/l+8bFrwB5iZ5B+sdPIL73H9MFw9I="
+      },
+      "body": "{\"data\":{\"recipient\":\"é@example.org\"},\"domain\":\"example.com\",\"id\":\"evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d\",\"type\":\"bounced\"}",
+      "expect": false
+    },
+    {
+      "name": "at_the_edge_of_tolerance_accepted",
+      "category": "signature",
+      "signed_with": "whsec_6zF2QIQo9lhSA/1704ovlSzwkqgIaEaTqW5ML16ZGfk=",
+      "headers": {
+        "content-type": "application/json",
+        "user-agent": "Duva-Webhooks/1",
+        "webhook-id": "evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d",
+        "webhook-timestamp": "1790517502",
+        "webhook-signature": "v1,Pj7GLxwtmyp9jtJG7kQT3XFcytN1HW05HI2E9qCHKFo="
+      },
+      "body": "{\"data\":{\"recipient\":\"é@example.org\"},\"domain\":\"example.com\",\"id\":\"evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d\",\"type\":\"bounced\"}",
+      "expect": true
+    },
+    {
+      "name": "just_past_the_tolerance_rejected",
+      "category": "signature",
+      "signed_with": "whsec_6zF2QIQo9lhSA/1704ovlSzwkqgIaEaTqW5ML16ZGfk=",
+      "headers": {
+        "content-type": "application/json",
+        "user-agent": "Duva-Webhooks/1",
+        "webhook-id": "evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d",
+        "webhook-timestamp": "1790517500",
+        "webhook-signature": "v1,n5h3zt2JJH+o+sp46Rq2irjKqUxJNgstsNWJSGdoKHs="
+      },
+      "body": "{\"data\":{\"recipient\":\"é@example.org\"},\"domain\":\"example.com\",\"id\":\"evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d\",\"type\":\"bounced\"}",
+      "expect": false
+    },
+    {
+      "name": "a_second_bad_signature_does_not_hide_the_good_one",
+      "category": "signature",
+      "signed_with": "whsec_6zF2QIQo9lhSA/1704ovlSzwkqgIaEaTqW5ML16ZGfk=",
+      "headers": {
+        "content-type": "application/json",
+        "user-agent": "Duva-Webhooks/1",
+        "webhook-id": "evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d",
+        "webhook-timestamp": "1790517801",
+        "webhook-signature": "v1,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= v1,HwBNkO4X2rqReiR9LAeiAmZLnGS944FKK4Kqu5cBocE="
+      },
+      "body": "{\"data\":{\"recipient\":\"é@example.org\"},\"domain\":\"example.com\",\"id\":\"evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d\",\"type\":\"bounced\"}",
+      "expect": true
+    },
+    {
+      "name": "wrong_secret",
+      "category": "signature",
+      "signed_with": "whsec_zDO73BOItMmvwWp+LjuNjb/K+rLKPswNMp5gCIcwuCg=",
+      "headers": {
+        "content-type": "application/json",
+        "user-agent": "Duva-Webhooks/1",
+        "webhook-id": "evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d",
+        "webhook-timestamp": "1790517801",
+        "webhook-signature": "v1,X/CDwBVSpLNNGR/mqye3FUamltIQzzrMV1gvtcpXodM="
+      },
+      "body": "{\"data\":{\"recipient\":\"é@example.org\"},\"domain\":\"example.com\",\"id\":\"evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d\",\"type\":\"bounced\"}",
+      "expect": false
+    },
+    {
+      "name": "garbage_signature_is_never_a_crash",
+      "category": "signature",
+      "signed_with": "whsec_6zF2QIQo9lhSA/1704ovlSzwkqgIaEaTqW5ML16ZGfk=",
+      "headers": {
+        "content-type": "application/json",
+        "user-agent": "Duva-Webhooks/1",
+        "webhook-id": "evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d",
+        "webhook-timestamp": "1790517801",
+        "webhook-signature": "v1,not base64 at all !!"
+      },
+      "body": "{\"data\":{\"recipient\":\"é@example.org\"},\"domain\":\"example.com\",\"id\":\"evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d\",\"type\":\"bounced\"}",
+      "expect": false
+    },
+    {
+      "name": "an_unknown_signature_version_is_refused",
+      "category": "signature",
+      "signed_with": "whsec_6zF2QIQo9lhSA/1704ovlSzwkqgIaEaTqW5ML16ZGfk=",
+      "headers": {
+        "content-type": "application/json",
+        "user-agent": "Duva-Webhooks/1",
+        "webhook-id": "evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d",
+        "webhook-timestamp": "1790517801",
+        "webhook-signature": "v2,HwBNkO4X2rqReiR9LAeiAmZLnGS944FKK4Kqu5cBocE="
+      },
+      "body": "{\"data\":{\"recipient\":\"é@example.org\"},\"domain\":\"example.com\",\"id\":\"evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d\",\"type\":\"bounced\"}",
+      "expect": false
+    },
+    {
+      "name": "a_missing_signature_header_is_never_a_crash",
+      "category": "signature",
+      "signed_with": "whsec_6zF2QIQo9lhSA/1704ovlSzwkqgIaEaTqW5ML16ZGfk=",
+      "headers": {
+        "content-type": "application/json",
+        "user-agent": "Duva-Webhooks/1",
+        "webhook-id": "evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d",
+        "webhook-timestamp": "1790517801",
+        "webhook-signature": ""
+      },
+      "body": "{\"data\":{\"recipient\":\"é@example.org\"},\"domain\":\"example.com\",\"id\":\"evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d\",\"type\":\"bounced\"}",
+      "expect": false
+    },
+    {
+      "name": "rotation_the_older_of_two_active_secrets_still_verifies",
+      "category": "rotation",
+      "signed_with": "whsec_zDO73BOItMmvwWp+LjuNjb/K+rLKPswNMp5gCIcwuCg=",
+      "headers": {
+        "content-type": "application/json",
+        "user-agent": "Duva-Webhooks/1",
+        "webhook-id": "evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d",
+        "webhook-timestamp": "1790517801",
+        "webhook-signature": "v1,X/CDwBVSpLNNGR/mqye3FUamltIQzzrMV1gvtcpXodM="
+      },
+      "body": "{\"data\":{\"recipient\":\"é@example.org\"},\"domain\":\"example.com\",\"id\":\"evt_0b1c2d3e4f5a46b78c9d0e1f2a3b4c5d\",\"type\":\"bounced\"}",
+      "expect": true,
+      "other_valid_secret": "whsec_6zF2QIQo9lhSA/1704ovlSzwkqgIaEaTqW5ML16ZGfk="
+    }
+  ]
+}

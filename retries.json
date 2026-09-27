@@ -1,0 +1,169 @@
+{
+  "$schema": "one retry scenario per row. `response_sequence[i].status: null` means no response at all (connection failure). `expected_attempts` counts every HTTP attempt, including the first.",
+  "cases": [
+    {
+      "name": "rate_limited_then_success_within_the_wait_budget",
+      "operation_id": "sendMessage",
+      "max_retries": 3,
+      "max_retry_wait_seconds": 30,
+      "response_sequence": [
+        {
+          "status": 429,
+          "headers": {
+            "Retry-After": "2"
+          },
+          "body": {
+            "error": {
+              "code": "rate_limited",
+              "message": "..."
+            }
+          }
+        },
+        {
+          "status": 202,
+          "body": {
+            "id": "msg_9f1c2d3e4a5b46c78d9e0f1a2b3c4d5e",
+            "status": "queued"
+          }
+        }
+      ],
+      "expected_attempts": 2,
+      "expected_outcome": "success"
+    },
+    {
+      "name": "rate_limited_wait_exceeds_the_budget_is_not_retried",
+      "operation_id": "getMessage",
+      "max_retries": 3,
+      "max_retry_wait_seconds": 30,
+      "response_sequence": [
+        {
+          "status": 429,
+          "headers": {
+            "Retry-After": "120"
+          },
+          "body": {
+            "error": {
+              "code": "rate_limited",
+              "message": "..."
+            }
+          }
+        }
+      ],
+      "expected_attempts": 1,
+      "expected_outcome": "error:rate_limited"
+    },
+    {
+      "name": "quota_exceeded_is_never_retried_even_though_the_operation_is_safe_to_retry",
+      "operation_id": "sendMessage",
+      "max_retries": 3,
+      "max_retry_wait_seconds": 3600,
+      "response_sequence": [
+        {
+          "status": 429,
+          "headers": {
+            "Retry-After": "3600"
+          },
+          "body": {
+            "error": {
+              "code": "quota_exceeded",
+              "message": "..."
+            }
+          }
+        }
+      ],
+      "expected_attempts": 1,
+      "expected_outcome": "error:quota_exceeded"
+    },
+    {
+      "name": "a_transient_server_error_is_retried_on_a_safe_to_retry_operation",
+      "operation_id": "sendMessage",
+      "max_retries": 3,
+      "max_retry_wait_seconds": 30,
+      "response_sequence": [
+        {
+          "status": 502
+        },
+        {
+          "status": 202,
+          "body": {
+            "id": "msg_9f1c2d3e4a5b46c78d9e0f1a2b3c4d5e",
+            "status": "queued"
+          }
+        }
+      ],
+      "expected_attempts": 2,
+      "expected_outcome": "success"
+    },
+    {
+      "name": "a_transient_server_error_is_not_retried_on_a_non_idempotent_write",
+      "operation_id": "addSuppression",
+      "max_retries": 3,
+      "max_retry_wait_seconds": 30,
+      "response_sequence": [
+        {
+          "status": 503
+        }
+      ],
+      "expected_attempts": 1,
+      "expected_outcome": "error:server"
+    },
+    {
+      "name": "a_network_failure_with_no_response_is_retried_on_a_read",
+      "operation_id": "listEvents",
+      "max_retries": 3,
+      "max_retry_wait_seconds": 30,
+      "response_sequence": [
+        {
+          "status": null
+        },
+        {
+          "status": 200,
+          "body": {
+            "id": "msg_9f1c2d3e4a5b46c78d9e0f1a2b3c4d5e",
+            "status": "queued"
+          }
+        }
+      ],
+      "expected_attempts": 2,
+      "expected_outcome": "success"
+    },
+    {
+      "name": "an_idempotency_conflict_is_never_retried",
+      "operation_id": "sendMessage",
+      "max_retries": 3,
+      "max_retry_wait_seconds": 30,
+      "response_sequence": [
+        {
+          "status": 409,
+          "body": {
+            "error": {
+              "code": "idempotency_conflict",
+              "message": "..."
+            }
+          }
+        }
+      ],
+      "expected_attempts": 1,
+      "expected_outcome": "error:idempotency_conflict"
+    },
+    {
+      "name": "a_validation_error_is_never_retried",
+      "operation_id": "sendMessage",
+      "max_retries": 3,
+      "max_retry_wait_seconds": 30,
+      "response_sequence": [
+        {
+          "status": 422,
+          "body": {
+            "error": {
+              "code": "invalid_request",
+              "message": "..."
+            }
+          }
+        }
+      ],
+      "expected_attempts": 1,
+      "expected_outcome": "error:invalid_request"
+    }
+  ]
+}

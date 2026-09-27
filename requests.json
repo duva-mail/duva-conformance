@@ -1,0 +1,126 @@
+{
+  "$schema": "one case per operation with a request body (plus two GET/DELETE examples for path shape). `body`, when present, is validated against the real API request model at generation time: build the same request your language's HTTP client would send.",
+  "cases": [
+    {
+      "operation_id": "sendMessage",
+      "input": {
+        "domain": "example.com",
+        "api_key": "dv_1a2b3c4d5e_7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f",
+        "from_": "Example <notifications@example.com>",
+        "to": [
+          "client@example.org"
+        ],
+        "subject": "Your order",
+        "text": "Thank you for your order.",
+        "tags": [
+          "order"
+        ],
+        "metadata": {
+          "order_id": "A-1042"
+        },
+        "idempotency_key": "order-4821"
+      },
+      "expected_request": {
+        "method": "POST",
+        "path": "/v1/example.com/messages",
+        "headers": {
+          "authorization": "Bearer dv_1a2b3c4d5e_7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f",
+          "content-type": "application/json",
+          "idempotency-key": "order-4821"
+        },
+        "body": {
+          "from": "Example <notifications@example.com>",
+          "to": [
+            "client@example.org"
+          ],
+          "subject": "Your order",
+          "text": "Thank you for your order.",
+          "tags": [
+            "order"
+          ],
+          "metadata": {
+            "order_id": "A-1042"
+          }
+        }
+      }
+    },
+    {
+      "operation_id": "addSuppression",
+      "input": {
+        "domain": "example.com",
+        "api_key": "dv_1a2b3c4d5e_7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f",
+        "email": "client@example.org"
+      },
+      "expected_request": {
+        "method": "POST",
+        "path": "/v1/example.com/suppressions",
+        "headers": {
+          "authorization": "Bearer dv_1a2b3c4d5e_7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f",
+          "content-type": "application/json"
+        },
+        "body": {
+          "email": "client@example.org"
+        }
+      }
+    },
+    {
+      "operation_id": "createWebhook",
+      "input": {
+        "domain": "example.com",
+        "api_key": "dv_1a2b3c4d5e_7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f",
+        "url": "https://example.org/hooks/duva",
+        "events": [
+          "delivered",
+          "bounced"
+        ]
+      },
+      "expected_request": {
+        "method": "POST",
+        "path": "/v1/example.com/webhooks",
+        "headers": {
+          "authorization": "Bearer dv_1a2b3c4d5e_7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f",
+          "content-type": "application/json"
+        },
+        "body": {
+          "url": "https://example.org/hooks/duva",
+          "events": [
+            "delivered",
+            "bounced"
+          ]
+        }
+      }
+    },
+    {
+      "operation_id": "getMessage",
+      "input": {
+        "domain": "example.com",
+        "api_key": "dv_1a2b3c4d5e_7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f",
+        "id": "msg_9f1c2d3e4a5b46c78d9e0f1a2b3c4d5e"
+      },
+      "expected_request": {
+        "method": "GET",
+        "path": "/v1/example.com/messages/msg_9f1c2d3e4a5b46c78d9e0f1a2b3c4d5e",
+        "headers": {
+          "authorization": "Bearer dv_1a2b3c4d5e_7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f"
+        },
+        "body": null
+      }
+    },
+    {
+      "operation_id": "removeSuppression",
+      "input": {
+        "domain": "example.com",
+        "api_key": "dv_1a2b3c4d5e_7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f",
+        "email": "client@example.org"
+      },
+      "expected_request": {
+        "method": "DELETE",
+        "path": "/v1/example.com/suppressions/client%40example.org",
+        "headers": {
+          "authorization": "Bearer dv_1a2b3c4d5e_7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f"
+        },
+        "body": null
+      }
+    }
+  ]
+}

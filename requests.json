@@ -45,6 +45,49 @@
       }
     },
     {
+      "operation_id": "sendMessage",
+      "input": {
+        "domain": "example.com",
+        "api_key": "dv_1a2b3c4d5e_7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f",
+        "from_": "Example <notifications@example.com>",
+        "to": [
+          "Client <client@example.org>",
+          "second@example.org"
+        ],
+        "cc": [
+          "Copy <copy@example.org>"
+        ],
+        "bcc": [
+          "archive@example.org"
+        ],
+        "subject": "Your order",
+        "text": "Thank you for your order."
+      },
+      "expected_request": {
+        "method": "POST",
+        "path": "/v1/example.com/messages",
+        "headers": {
+          "authorization": "Bearer dv_1a2b3c4d5e_7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f",
+          "content-type": "application/json"
+        },
+        "body": {
+          "from": "Example <notifications@example.com>",
+          "to": [
+            "Client <client@example.org>",
+            "second@example.org"
+          ],
+          "cc": [
+            "Copy <copy@example.org>"
+          ],
+          "bcc": [
+            "archive@example.org"
+          ],
+          "subject": "Your order",
+          "text": "Thank you for your order."
+        }
+      }
+    },
+    {
       "operation_id": "addSuppression",
       "input": {
         "domain": "example.com",
